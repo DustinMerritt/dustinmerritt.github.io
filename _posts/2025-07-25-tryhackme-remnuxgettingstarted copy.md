@@ -11,7 +11,8 @@ image:
 
 In this TryHackMe room, we used **REMnux** to analyze a suspicious Excel document named `agenttesla.xlsm`. We leveraged the `oledump.py` tool to extract and examine embedded macros, then used **CyberChef** to clean and interpret an obfuscated PowerShell payload. This exercise demonstrated a realistic scenario where VBA macros are used to drop malware onto a target system.
 
-[![TryHackMe Room Link](room_image.webp){: width="300" height="300" .shadow}](https://tryhackme.com/room/remnuxgettingstarted){: .center }
+[TryHackMe Room: REMnux Getting Started](https://tryhackme.com/room/remnuxgettingstarted)
+
 
 ## Initial Setup
 
