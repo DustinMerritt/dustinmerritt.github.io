@@ -4,7 +4,7 @@ author: Dustin Merritt
 categories: [TryHackMe]
 tags: [remnux, oledump, malware, vba, static analysis, cyberchef]
 render_with_liquid: false
-media_subpath: /images/tryhackme_remnux/
+media_subpath: /images/tryhackme_remnuxgettingstarted/
 image:
   path: room_image.webp
 ---
