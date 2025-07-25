@@ -8,11 +8,9 @@ media_subpath: /images/tryhackme_stolenmount/
 image:
   path: room_card.webp
 ---  
-**Room Link**: https://tryhackme.com/room/hfb1stolenmount
-
-## Scenario
-
 An intruder has breached the internal network and targeted the NFS (Network File System) server where sensitive backup files are stored. A confidential secret was exfiltrated. The only trace left behind is a packet capture (`challenge.pcapng`). Our task is to analyze this PCAP and retrieve the stolen information.
+
+[![TryHackMe Room Link](room_card.webp){: width="300" height="300" .shadow}](https://tryhackme.com/room/hfb1stolenmount){: .center }
 
 ## Tools Used
 - Wireshark – To analyze network traffic

