@@ -58,7 +58,7 @@ key = b''
 for i in range(len(known_start)):
   key_byte = ciphertext[i] ^ known_start[i]
   key += bytes([key_byte])
-
+```
 # Show the recovered repeating key
 From XORing the ciphertext with "ORDER:", the key was recovered.
 ```
