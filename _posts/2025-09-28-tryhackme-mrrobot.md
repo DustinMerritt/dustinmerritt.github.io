@@ -14,7 +14,7 @@ image:
 This room was a fun dive into realistic enumeration and privilege escalation techniques. Below is how I approached and completed the Mr. Robot CTF on TryHackMe, with step-by-step explanations that anyone new to this can follow.
 
 ![Tryhackme Room Link](room_card.webp){: width="600" height="150" .shadow }
-_<https://tryhackme.com/room/dodge>_
+_<https://tryhackme.com/room/mrrobot>_
 
 # Initial Enumeration
 
