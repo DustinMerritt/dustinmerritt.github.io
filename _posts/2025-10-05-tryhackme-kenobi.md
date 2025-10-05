@@ -189,7 +189,7 @@ What is the version? 1.3.5
 
 We can use searchsploit to find exploits for a particular software version.
 
-Searchsploit is basically just a command line search tool for [exploit-db.com](http://exploit-db.com/).
+Searchsploit is basically just a command line search tool for [exploit-db.com](https://exploit-db.com/).
 
 https://www.exploit-db.com/searchsploit
 
@@ -202,7 +202,7 @@ How many exploits are there for the ProFTPd running? 3
 
 </aside>
 
-You should have found an exploit from ProFtpd's [mod_copy module](http://www.proftpd.org/docs/contrib/mod_copy.html).
+You should have found an exploit from ProFtpd's [mod_copy module](https://www.proftpd.org/docs/contrib/mod_copy.html).
 
 The mod_copy module implements **SITE CPFR** and **SITE CPTO** commands, which can be used to copy files/directories from one place to another on the server. Any unauthenticated client can leverage these commands to copy files from any part of the filesystem to a chosen destination.
 
@@ -221,7 +221,7 @@ You can find more info by entering:
 searchsploit -x linux/remote/36742.txt
 ```
 
-[Bug 4169 – Unauthenticated copying of files via SITE CPFR/CPTO allowed by mod_copy](http://bugs.proftpd.org/show_bug.cgi?id=4169)
+[Bug 4169 – Unauthenticated copying of files via SITE CPFR/CPTO allowed by mod_copy](https://bugs.proftpd.org/show_bug.cgi?id=4169)
 
 We're now going to copy Kenobi's private key using SITE CPFR and SITE CPTO commands.
 
