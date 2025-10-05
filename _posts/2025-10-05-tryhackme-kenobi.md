@@ -9,7 +9,7 @@ image:
   path: room_image.webp
 ---
 
-![Tryhackme Room Link](room_card.gif){: width="600" height="150" .shadow }
+![Tryhackme Room Link](room_card.gif){: width="69" height="150" .shadow }
 _<https://tryhackme.com/room/kenobi>_
 
 # Task 1 Deploy the Vulnerable Machine
